@@ -1,10 +1,8 @@
 from typing import Optional, List, Dict, Any
-from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import QuerySet
 from db.models import Order, MovieSession, Ticket
-
-User = get_user_model()
+from services.user import get_user
 
 
 @transaction.atomic
@@ -13,12 +11,16 @@ def create_order(
     username: str,
     date: Optional[str] = None,
 ) -> Order:
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
     user = User.objects.get(username=username)
 
-    order = Order.objects.create(user=user)
+    order_kwargs = {"user": user}
     if date:
-        order.created_at = date
-        order.save()
+        order_kwargs["created_at"] = date
+
+    order = Order.objects.create(**order_kwargs)
 
     for ticket_data in tickets:
         movie_session = MovieSession.objects.get(

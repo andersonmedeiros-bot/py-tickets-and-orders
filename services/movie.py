@@ -14,17 +14,14 @@ def get_movies(
     if title:
         queryset = queryset.filter(title__icontains=title)
 
-    if genres_ids and actors_ids:
-        return queryset.filter(
-            genres__id__in=genres_ids,
-            actors__id__in=actors_ids,
-        ).distinct()
-
     if genres_ids:
-        return queryset.filter(genres__id__in=genres_ids).distinct()
+        queryset = queryset.filter(genres__id__in=genres_ids)
 
     if actors_ids:
-        return queryset.filter(actors__id__in=actors_ids).distinct()
+        queryset = queryset.filter(actors__id__in=actors_ids)
+
+    if genres_ids or actors_ids:
+        queryset = queryset.distinct()
 
     return queryset
 
